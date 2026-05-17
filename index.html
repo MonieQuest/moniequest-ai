@@ -1,1 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MonieQuest AI — Business Operating System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --bg4: #1e1e28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --gold: #c9a84c;
+  --gold2: #e8c97a;
+  --gold-dim: rgba(201,168,76,0.15);
+  --gold-glow: rgba(201,168,76,0.08);
+  --text: #e8e6df;
+  --text2: #9a9890;
+  --text3: #5c5a55;
+  --green: #3dba7a;
+  --green-dim: rgba(61,186,122,0.12);
+  --red: #e05252;
+  --red-dim: rgba(224,82,82,0.12);
+  --blue: #5b8dee;
+  --blue-dim: rgba(91,141,238,0.12);
+  --purple: #9b6dff;
+  --purple-dim: rgba(155,109,255,0.12);
+  --r: 10px;
+  --r2: 14px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+
+/* ── LAYOUT ─────────────────────────────── */
+.shell { display: flex; height: 100vh; }
+.sidebar { width: 240px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── SIDEBAR ─────────────────────────────── */
+.logo-area { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
+.logo { font-family: var(--font-head); font-size: 18px; font-weight: 800; color: var(--gold2); letter-spacing: -0.3px; }
+.logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+.nav-section { padding: 14px 10px 6px; }
+.nav-label { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); padding: 0 8px; margin-bottom: 4px; }
+.nav-btn { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 10px; border-radius: 8px; border: none; background: transparent; color: var(--text2); cursor: pointer; font-family: var(--font-body); font-size: 13px; text-align: left; transition: all 0.15s; }
+.nav-btn svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+.nav-btn:hover { background: var(--bg3); color: var(--text); }
+.nav-btn.active { background: var(--gold-dim); color: var(--gold2); border: 1px solid rgba(201,168,76,0.2); }
+.nav-btn.active svg { opacity: 1; }
+.sidebar-footer { margin-top: auto; padding: 14px; border-top: 1px solid var(--border); }
+.kb-status { font-size: 11px; color: var(--text3); }
+.kb-pill { display: inline-flex; align-items: center; gap: 4px; background: var(--green-dim); color: var(--green); font-size: 10px; padding: 3px 8px; border-radius: 100px; margin-top: 4px; }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* ── TOPBAR ─────────────────────────────── */
+.topbar { padding: 14px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: var(--bg2); flex-shrink: 0; }
+.page-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--text); }
+.page-desc { font-size: 12px; color: var(--text3); }
+.topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.badge { font-size: 10px; padding: 3px 10px; border-radius: 100px; font-weight: 500; letter-spacing: 0.02em; }
+.badge-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+.badge-green { background: var(--green-dim); color: var(--green); }
+
+/* ── PANELS ─────────────────────────────── */
+.panel { display: none; flex: 1; overflow-y: auto; padding: 24px; }
+.panel.active { display: flex; flex-direction: column; gap: 20px; }
+
+/* ── CARDS ─────────────────────────────── */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2); padding: 18px 20px; }
+.card-title { font-family: var(--font-head); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.card-title svg { width: 14px; height: 14px; color: var(--gold); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+
+/* ── FORMS ─────────────────────────────── */
+label { font-size: 11px; font-weight: 500; color: var(--text2); letter-spacing: 0.04em; text-transform: uppercase; display: block; margin-bottom: 5px; }
+input, textarea, select {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px;
+  color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 9px 12px;
+  outline: none; transition: border 0.15s; resize: vertical;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+select option { background: var(--bg3); }
+textarea { min-height: 90px; }
+
+/* ── BUTTONS ─────────────────────────────── */
+.btn { padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 500; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-gold { background: var(--gold); color: #0a0a0f; }
+.btn-gold:hover { background: var(--gold2); }
+.btn-ghost { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--bg4); }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+/* ── RESPONSE OUTPUT ─────────────────────────────── */
+.response-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 16px; min-height: 120px; white-space: pre-wrap; font-size: 14px; line-height: 1.7; color: var(--text); position: relative; }
+.response-box.loading::after { content: ''; display: inline-block; width: 8px; height: 16px; background: var(--gold); animation: blink 0.8s infinite; margin-left: 2px; border-radius: 2px; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.copy-bar { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+
+/* ── CHAT UI ─────────────────────────────── */
+.chat-wrap { display: flex; flex-direction: column; height: 100%; }
+.chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 20px 24px; }
+.msg-row { display: flex; gap: 10px; }
+.msg-row.user { flex-direction: row-reverse; }
+.avatar { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 11px; font-weight: 700; }
+.avatar-ai { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+.avatar-user { background: var(--bg4); color: var(--text2); }
+.bubble { max-width: 75%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+.bubble-ai { background: var(--bg3); border: 1px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
+.bubble-user { background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.2); border-bottom-right-radius: 4px; color: var(--text); }
+.bubble-time { font-size: 10px; color: var(--text3); margin-top: 3px; }
+.chat-input-area { padding: 14px 20px; border-top: 1px solid var(--border); background: var(--bg2); display: flex; gap: 10px; align-items: flex-end; }
+.chat-input-area textarea { min-height: 44px; max-height: 120px; resize: none; flex: 1; }
+.mode-select-row { padding: 10px 20px 0; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; }
+.mode-chip { padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border2); background: transparent; color: var(--text3); font-size: 11px; cursor: pointer; white-space: nowrap; transition: all 0.15s; font-family: var(--font-body); }
+.mode-chip.active { background: var(--gold-dim); color: var(--gold); border-color: rgba(201,168,76,0.3); }
+
+/* ── KB MANAGER ─────────────────────────────── */
+.kb-doc { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; }
+.kb-doc-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--gold-dim); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.kb-doc-icon svg { width: 16px; height: 16px; color: var(--gold); }
+.kb-doc-info { flex: 1; min-width: 0; }
+.kb-doc-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kb-doc-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.kb-tag { font-size: 10px; padding: 2px 7px; border-radius: 100px; background: var(--bg4); color: var(--text3); border: 1px solid var(--border); }
+.kb-slot { padding: 14px; border: 1px dashed var(--border2); border-radius: 10px; text-align: center; color: var(--text3); font-size: 12px; cursor: pointer; transition: all 0.15s; margin-bottom: 6px; }
+.kb-slot:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+.kb-entry-form { background: var(--bg3); border: 1px solid var(--gold); border-radius: 10px; padding: 16px; margin-top: 12px; display: none; }
+.kb-entry-form.open { display: block; }
+
+/* ── FLOW BUILDER ─────────────────────────────── */
+.flow-stage { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.stage-num { width: 26px; height: 26px; border-radius: 50%; background: var(--gold-dim); color: var(--gold); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: var(--font-head); }
+.stage-body { flex: 1; }
+.stage-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.stage-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+.stage-arrow { text-align: center; color: var(--text3); font-size: 16px; padding: 2px 0; }
+
+/* ── OBJECTION ENGINE ─────────────────────────────── */
+.objection-chip { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border2); background: var(--bg3); color: var(--text2); font-size: 12px; cursor: pointer; transition: all 0.15s; font-family: var(--font-body); }
+.objection-chip:hover, .objection-chip.selected { background: var(--red-dim); color: var(--red); border-color: rgba(224,82,82,0.3); }
+.objection-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.script-block { background: var(--bg3); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; color: var(--text2); line-height: 1.6; }
+.script-block strong { color: var(--gold); font-weight: 500; }
+
+/* ── PRODUCT KB ─────────────────────────────── */
+.product-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; }
+.product-card:hover { border-color: var(--gold); }
+.product-card.selected { border-color: var(--gold); background: var(--gold-glow); }
+.product-name { font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.product-cat { font-size: 11px; color: var(--text3); }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 10px; margin-bottom: 16px; }
+
+/* ── SEMINAR ─────────────────────────────── */
+.seminar-stage-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); cursor: pointer; font-family: var(--font-body); font-size: 12px; text-align: left; margin-bottom: 6px; transition: all 0.15s; }
+.seminar-stage-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+.stage-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+/* ── ONBOARDING ─────────────────────────────── */
+.onboard-step { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 10px; }
+.onboard-step-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.onboard-num { width: 28px; height: 28px; border-radius: 8px; background: var(--gold-dim); color: var(--gold); font-family: var(--font-head); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.onboard-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.onboard-body { margin-top: 12px; font-size: 13px; color: var(--text2); line-height: 1.7; display: none; }
+.onboard-body.open { display: block; }
+.code-block { background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; padding: 12px 14px; font-family: 'Courier New', monospace; font-size: 12px; color: var(--gold2); margin: 10px 0; white-space: pre-wrap; word-break: break-all; }
+
+/* ── STAT ROW ─────────────────────────────── */
+.stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.stat { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.stat-val { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--gold2); }
+.stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* ── SCROLLBAR ─────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+/* ── UTIL ─────────────────────────────── */
+.row { display: flex; gap: 10px; align-items: center; }
+.spacer { flex: 1; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+.text-gold { color: var(--gold); }
+.text-muted { color: var(--text3); font-size: 12px; }
+.mt8 { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+.mt16 { margin-top: 16px; }
+.tag { font-size: 10px; padding: 2px 8px; border-radius: 100px; }
+.tag-gold { background: var(--gold-dim); color: var(--gold); }
+.tag-green { background: var(--green-dim); color: var(--green); }
+.tag-blue { background: var(--blue-dim); color: var(--blue); }
+.tag-purple { background: var(--purple-dim); color: var(--purple); }
+.thinking { color: var(--text3); font-style: italic; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo">MonieQuest AI</div>
+    <div class="logo-sub">Business Operating System</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Core Modules</div>
+    <button class="nav-btn active" onclick="nav('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" onclick="nav('chat')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Customer Support AI
+    </button>
+    <button class="nav-btn" onclick="nav('response')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Response Generator
+    </button>
+    <button class="nav-btn" onclick="nav('objection')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Objection Engine
+    </button>
+    <button class="nav-btn" onclick="nav('seminar')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      WhatsApp Seminar
+    </button>
+    <button class="nav-btn" onclick="nav('flow')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Conversation Flow
+    </button>
+    <button class="nav-btn" onclick="nav('products')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Product Knowledge
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Tools</div>
+    <button class="nav-btn" onclick="nav('kb')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Knowledge Base
+    </button>
+    <button class="nav-btn" onclick="nav('team')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+      Team Assistant
+    </button>
+    <button class="nav-btn" onclick="nav('setup')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+      Setup & Guide
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="kb-status">Knowledge Base</div>
+    <div class="kb-pill mt8"><span class="dot"></span> 2 documents active</div>
+    <div style="font-size:10px;color:var(--text3);margin-top:6px;">Nurturing Framework · Nigeria Sectors</div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="page-desc" id="page-desc">Welcome to MonieQuest AI Business Operating System</div>
+    </div>
+    <div class="topbar-right">
+      <span class="badge badge-gold">Investor MB</span>
+      <span class="badge badge-green">● Live</span>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-val">8</div><div class="stat-label">AI modules active</div></div>
+      <div class="stat"><div class="stat-val">2</div><div class="stat-label">KB documents loaded</div></div>
+      <div class="stat"><div class="stat-val">13</div><div class="stat-label">Nigeria sectors covered</div></div>
+      <div class="stat"><div class="stat-val">∞</div><div class="stat-label">Conversations possible</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Knowledge Base Status
+        </div>
+        <div class="kb-doc" style="margin-bottom:8px">
+          <div class="kb-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="kb-doc-info">
+            <div class="kb-doc-name">Customer Nurturing & Attraction</div>
+            <div class="kb-doc-tags">
+              <span class="kb-tag">Lead nurturing</span><span class="kb-tag">Seminar scripts</span><span class="kb-tag">Objection handling</span><span class="kb-tag">Closings</span>
+            </div>
+          </div>
+          <span class="tag tag-green">Active</span>
+        </div>
+        <div class="kb-doc">
+          <div class="kb-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="kb-doc-info">
+            <div class="kb-doc-name">Business Sectors in Nigeria</div>
+            <div class="kb-doc-tags">
+              <span class="kb-tag">13 sectors</span><span class="kb-tag">Occupations</span><span class="kb-tag">Business types</span>
+            </div>
+          </div>
+          <span class="tag tag-green">Active</span>
+        </div>
+        <button class="btn btn-ghost btn-sm mt12" onclick="nav('kb')">Manage Knowledge Base →</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Quick Actions
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-gold" style="width:100%;justify-content:center" onclick="nav('chat')">💬 Start Customer Conversation</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="nav('response')">✍️ Generate a Response</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="nav('objection')">🛡️ Handle an Objection</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="nav('seminar')">📢 Prepare Seminar Content</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        How this system works
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div style="text-align:center;padding:12px 8px">
+          <div style="font-size:22px;margin-bottom:6px">📄</div>
+          <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px">Upload documents</div>
+          <div style="font-size:11px;color:var(--text3)">Your scripts, frameworks & pricing live in the Knowledge Base</div>
+        </div>
+        <div style="text-align:center;padding:12px 8px">
+          <div style="font-size:22px;margin-bottom:6px">🧠</div>
+          <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px">AI reads first</div>
+          <div style="font-size:11px;color:var(--text3)">Every response is generated FROM your documents — not generic internet content</div>
+        </div>
+        <div style="text-align:center;padding:12px 8px">
+          <div style="font-size:22px;margin-bottom:6px">💬</div>
+          <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px">Team uses it</div>
+          <div style="font-size:11px;color:var(--text3)">Paste a customer message, pick a mode, get the perfect reply</div>
+        </div>
+        <div style="text-align:center;padding:12px 8px">
+          <div style="font-size:22px;margin-bottom:6px">📈</div>
+          <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px">Keep updating</div>
+          <div style="font-size:11px;color:var(--text3)">Add new scripts anytime — system gets smarter with every update</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CUSTOMER SUPPORT CHAT ═══ -->
+  <div class="panel" id="panel-chat">
+    <div class="chat-wrap" style="height:calc(100vh - 80px);gap:0">
+      <div class="mode-select-row">
+        <button class="mode-chip active" onclick="setMode(this,'general')">General Support</button>
+        <button class="mode-chip" onclick="setMode(this,'nurture')">Lead Nurture</button>
+        <button class="mode-chip" onclick="setMode(this,'sourcing')">Product Sourcing</button>
+        <button class="mode-chip" onclick="setMode(this,'networking')">B2B Networking</button>
+        <button class="mode-chip" onclick="setMode(this,'digital')">AI & Digital Services</button>
+        <button class="mode-chip" onclick="setMode(this,'followup')">Lead Follow-up</button>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg-row">
+          <div class="avatar avatar-ai">MQ</div>
+          <div>
+            <div class="bubble bubble-ai">Good day! I'm your MonieQuest AI assistant, trained on Investor MB's proven frameworks. I'm ready to help with customer support, lead nurturing, product sourcing, B2B networking, and more. Which mode are you using, and what's the customer's situation?</div>
+            <div class="bubble-time">Now</div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <textarea id="chat-input" placeholder="Paste the customer's message here, or describe the situation..." rows="2" onkeydown="chatKey(event)"></textarea>
+        <button class="btn btn-gold" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RESPONSE GENERATOR ═══ -->
+  <div class="panel" id="panel-response">
+    <div class="grid2">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="card-title">Customer Message</div>
+          <div style="margin-bottom:10px">
+            <label>Paste the exact message your customer sent</label>
+            <textarea id="resp-customer-msg" placeholder="E.g. 'How much is the mini-importation course? Is it worth it?'" rows="4"></textarea>
+          </div>
+          <div class="grid2" style="gap:10px">
+            <div>
+              <label>Response Category</label>
+              <select id="resp-category">
+                <option value="general">General inquiry</option>
+                <option value="nurture">Lead nurture — new contact</option>
+                <option value="objection-price">Price objection</option>
+                <option value="objection-trust">Trust / skepticism</option>
+                <option value="objection-delay">Delay / "let me think"</option>
+                <option value="objection-partner">Needs to consult partner</option>
+                <option value="cant-afford">Can't afford — alternative ask</option>
+                <option value="not-digital">Not in digital business</option>
+                <option value="seminar-invite">Invite to seminar</option>
+                <option value="follow-up-ghost">Follow up — stopped replying</option>
+                <option value="closing">Close the sale</option>
+                <option value="post-purchase">After purchase message</option>
+                <option value="sourcing">Product sourcing inquiry</option>
+                <option value="b2b">B2B / networking approach</option>
+              </select>
+            </div>
+            <div>
+              <label>Tone</label>
+              <select id="resp-tone">
+                <option value="friendly">Friendly & warm (brother/sis)</option>
+                <option value="professional">Professional & confident</option>
+                <option value="urgent">Urgent — fast close needed</option>
+                <option value="soft">Soft — prospect is sensitive</option>
+                <option value="bold">Bold & direct</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <label>Additional Context (optional)</label>
+            <input id="resp-context" type="text" placeholder="E.g. 'This is Day 3 of conversation' or 'They viewed the seminar but didn't pay'">
+          </div>
+          <div class="row mt12">
+            <button class="btn btn-gold" onclick="generateResponse()">Generate Response →</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearResponse()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="card-title">Generated Response</div>
+          <div class="response-box" id="resp-output">Your optimized response will appear here — generated directly from your MonieQuest frameworks and uploaded documents.</div>
+          <div class="copy-bar">
+            <button class="btn btn-ghost btn-sm" onclick="copyResponse()">📋 Copy Response</button>
+            <button class="btn btn-ghost btn-sm" onclick="regenerateResponse()">🔄 Regenerate</button>
+          </div>
+        </div>
+        <div class="card" id="resp-scripts-card" style="display:none">
+          <div class="card-title">Framework scripts used</div>
+          <div id="resp-scripts"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ OBJECTION ENGINE ═══ -->
+  <div class="panel" id="panel-objection">
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="card-title">Detect & Handle Objections</div>
+          <div style="margin-bottom:12px">
+            <label>Customer's exact words</label>
+            <textarea id="obj-input" placeholder="Paste what your customer said. E.g. 'let me think about it' or 'the price is too high for me right now'" rows="4"></textarea>
+          </div>
+          <div style="margin-bottom:12px">
+            <label>Or select a known objection type</label>
+            <div class="objection-chips" id="obj-chips">
+              <button class="objection-chip" onclick="selectObj(this,'let me think about it')">Let me think about it</button>
+              <button class="objection-chip" onclick="selectObj(this,'I will get back to you')">I'll get back to you</button>
+              <button class="objection-chip" onclick="selectObj(this,'the price is too high')">Price is too high</button>
+              <button class="objection-chip" onclick="selectObj(this,'I need to talk to my partner first')">Need to consult partner</button>
+              <button class="objection-chip" onclick="selectObj(this,'send me more information')">Send more information</button>
+              <button class="objection-chip" onclick="selectObj(this,'do you have a guarantee')">Do you have a guarantee?</button>
+              <button class="objection-chip" onclick="selectObj(this,'I need to do some research first')">Need to research first</button>
+              <button class="objection-chip" onclick="selectObj(this,'I can not afford it right now')">Can't afford it now</button>
+              <button class="objection-chip" onclick="selectObj(this,'send me proof or testimony')">Send proof/testimony</button>
+              <button class="objection-chip" onclick="selectObj(this,'I stopped responding because I lost interest')">Lost interest / went cold</button>
+            </div>
+          </div>
+          <div style="margin-bottom:10px">
+            <label>What are you selling?</label>
+            <input id="obj-product" type="text" placeholder="E.g. Mini-importation masterclass, AI services, product sourcing">
+          </div>
+          <button class="btn btn-gold" onclick="handleObjection()" style="width:100%;justify-content:center">Generate Objection Response →</button>
+        </div>
+
+        <div class="card mt12">
+          <div class="card-title">Framework scripts — quick reference</div>
+          <div class="script-block"><strong>"Let me think about it"</strong><br>When people say that, what they usually mean is NO. You just don't want to hurt my feelings — isn't that the case here? Is it the money?</div>
+          <div class="script-block"><strong>"I'll get back to you"</strong><br>Usually when I hear that, I never hear from the person again. Let's bottom-line this — what would it take for us to do business today?</div>
+          <div class="script-block"><strong>Price objection</strong><br>Let's pretend I could offer you multiple payments — would that make a difference and we can break this up and go our separate ways smiling?</div>
+          <div class="script-block"><strong>"Send more info"</strong><br>I'll be happy to send it. But let me ask — if I send everything you asked for and you love what you see, are you ready to do business today?</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">AI Objection Response</div>
+          <div class="response-box" id="obj-output">Your customized objection-handling response will appear here — using Investor MB's proven counters from your uploaded frameworks.</div>
+          <div class="copy-bar">
+            <button class="btn btn-ghost btn-sm" onclick="copyEl('obj-output')">📋 Copy</button>
+            <button class="btn btn-ghost btn-sm" onclick="handleObjection()">🔄 Regenerate</button>
+          </div>
+        </div>
+
+        <div class="card mt12">
+          <div class="card-title">Escalation sequence</div>
+          <div class="flow-stage">
+            <div class="stage-num">1</div>
+            <div class="stage-body">
+              <div class="stage-title">Acknowledge first</div>
+              <div class="stage-desc">Never argue. Validate their concern — "I understand where you're coming from…"</div>
+            </div>
+          </div>
+          <div class="stage-arrow">↓</div>
+          <div class="flow-stage">
+            <div class="stage-num">2</div>
+            <div class="stage-body">
+              <div class="stage-title">Reframe to root cause</div>
+              <div class="stage-desc">Dig for the real objection — "Is it the money, or is there something else?"</div>
+            </div>
+          </div>
+          <div class="stage-arrow">↓</div>
+          <div class="flow-stage">
+            <div class="stage-num">3</div>
+            <div class="stage-body">
+              <div class="stage-title">Apply the pretend close</div>
+              <div class="stage-desc">"Let's pretend I could solve [root issue] — would you be ready to move forward today?"</div>
+            </div>
+          </div>
+          <div class="stage-arrow">↓</div>
+          <div class="flow-stage">
+            <div class="stage-num">4</div>
+            <div class="stage-body">
+              <div class="stage-title">If still resisting — graceful exit</div>
+              <div class="stage-desc">"No hard feelings, brother. My mission is your happiness. More business still coming."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ WHATSAPP SEMINAR ═══ -->
+  <div class="panel" id="panel-seminar">
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="card-title">Select Seminar Stage</div>
+          <button class="seminar-stage-btn active" onclick="seminarStage(this,'pre1')"><span class="stage-dot"></span> Pre-seminar — Day 1 (Invite & hype)</button>
+          <button class="seminar-stage-btn" onclick="seminarStage(this,'pre2')"><span class="stage-dot"></span> Pre-seminar — Day 2 (Build excitement)</button>
+          <button class="seminar-stage-btn" onclick="seminarStage(this,'pre3')"><span class="stage-dot"></span> Pre-seminar — Unsaved contacts notice</button>
+          <button class="seminar-stage-btn" onclick="seminarStage(this,'open')"><span class="stage-dot"></span> Seminar day — Opening & rules</button>
+          <button class="seminar-stage-btn" onclick="seminarStage(this,'intro')"><span class="stage-dot"></span> Seminar day — Investor MB intro</button>
+          <button class="seminar-stage-btn" onclick="seminarStage(this,'free')"><span class="stage-dot"></span> Free class content delivery</button>
+          <button class="seminar-stage-btn" onclick="seminarStage(this,'pitch')"><span class="stage-dot"></span> Masterclass pitch</button>
+          <button class="seminar-stage-btn" onclick="seminarStage(this,'followup')"><span class="stage-dot"></span> Post-seminar follow-up DMs</button>
+          <button class="seminar-stage-btn" onclick="seminarStage(this,'custom')"><span class="stage-dot"></span> Custom seminar message</button>
+        </div>
+        <div class="card mt12">
+          <div class="card-title">Customise</div>
+          <div style="margin-bottom:10px">
+            <label>Seminar topic / product</label>
+            <input id="sem-topic" type="text" placeholder="E.g. Mini-importation, Crypto trading, AI tools" value="Mini-importation">
+          </div>
+          <div style="margin-bottom:10px">
+            <label>Masterclass price</label>
+            <input id="sem-price" type="text" placeholder="E.g. ₦5,000" value="₦5,000">
+          </div>
+          <div>
+            <label>Custom instruction (optional)</label>
+            <input id="sem-custom" type="text" placeholder="E.g. Add urgency — only 50 slots left">
+          </div>
+          <button class="btn btn-gold mt12" onclick="generateSeminar()" style="width:100%;justify-content:center">Generate Message →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Generated Seminar Message</div>
+        <div class="response-box" id="sem-output" style="min-height:200px">Select a stage and click Generate.</div>
+        <div class="copy-bar">
+          <button class="btn btn-ghost btn-sm" onclick="copyEl('sem-output')">📋 Copy</button>
+          <button class="btn btn-ghost btn-sm" onclick="generateSeminar()">🔄 Regenerate</button>
+        </div>
+        <hr class="divider">
+        <div class="card-title" style="margin-top:0">WhatsApp formatting tips</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.8">
+          • *bold text* — wrap in asterisks<br>
+          • _italic_ — wrap in underscores<br>
+          • Keep messages under 3 paragraphs for WhatsApp groups<br>
+          • End every group message with a clear action: "Reply YES", "Send DONE", "Click the link"<br>
+          • Use line breaks for readability on mobile screens
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONVERSATION FLOW ═══ -->
+  <div class="panel" id="panel-flow">
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="card-title">Build a Conversation Flow</div>
+          <div style="margin-bottom:10px">
+            <label>Target prospect type</label>
+            <select id="flow-prospect">
+              <option value="new-whatsapp">New WhatsApp contact (unknown)</option>
+              <option value="business-owner">Business owner / entrepreneur</option>
+              <option value="employee">Salaried employee — wants extra income</option>
+              <option value="student">Student / young person</option>
+              <option value="trader">Trader / market seller</option>
+              <option value="not-digital">Someone not in digital business</option>
+              <option value="seminar-attendee">Seminar attendee (didn't pay)</option>
+              <option value="past-customer">Past customer — re-engagement</option>
+            </select>
+          </div>
+          <div style="margin-bottom:10px">
+            <label>End goal</label>
+            <select id="flow-goal">
+              <option value="masterclass">Sell masterclass / course</option>
+              <option value="ebook">Sell ebook</option>
+              <option value="sourcing">Product sourcing client</option>
+              <option value="seminar">Get them into seminar group</option>
+              <option value="referral">Get referrals / contacts</option>
+              <option value="networking">Business partnership</option>
+              <option value="ai-service">AI / digital services client</option>
+            </select>
+          </div>
+          <div>
+            <label>Duration / intensity</label>
+            <select id="flow-duration">
+              <option value="3day">3-day sequence</option>
+              <option value="7day">7-day sequence</option>
+              <option value="same-day">Same-day close</option>
+              <option value="single">Single message approach</option>
+            </select>
+          </div>
+          <button class="btn btn-gold mt12" onclick="generateFlow()" style="width:100%;justify-content:center">Generate Conversation Flow →</button>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="height:100%">
+          <div class="card-title">Generated Conversation Flow</div>
+          <div class="response-box" id="flow-output" style="min-height:300px">Your complete conversation flow will appear here — with day-by-day messages, engagement strategies, and closing scripts from the MonieQuest framework.</div>
+          <div class="copy-bar">
+            <button class="btn btn-ghost btn-sm" onclick="copyEl('flow-output')">📋 Copy Flow</button>
+            <button class="btn btn-ghost btn-sm" onclick="generateFlow()">🔄 Regenerate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">MonieQuest 7-Stage Master Conversation Framework</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">
+        <div class="flow-stage" style="flex-direction:column;text-align:center;padding:12px 8px">
+          <div class="stage-num" style="margin:0 auto 6px">1</div>
+          <div class="stage-title" style="font-size:11px">Introduction</div>
+          <div class="stage-desc" style="font-size:10px;margin-top:3px">Warm compliment. Build first impression.</div>
+        </div>
+        <div class="flow-stage" style="flex-direction:column;text-align:center;padding:12px 8px">
+          <div class="stage-num" style="margin:0 auto 6px">2</div>
+          <div class="stage-title" style="font-size:11px">Engagement</div>
+          <div class="stage-desc" style="font-size:10px;margin-top:3px">Ask about their work. Listen deeply.</div>
+        </div>
+        <div class="flow-stage" style="flex-direction:column;text-align:center;padding:12px 8px">
+          <div class="stage-num" style="margin:0 auto 6px">3</div>
+          <div class="stage-title" style="font-size:11px">Relationship</div>
+          <div class="stage-desc" style="font-size:10px;margin-top:3px">Uncover pain. Build trust & empathy.</div>
+        </div>
+        <div class="flow-stage" style="flex-direction:column;text-align:center;padding:12px 8px">
+          <div class="stage-num" style="margin:0 auto 6px">4</div>
+          <div class="stage-title" style="font-size:11px">Introduction</div>
+          <div class="stage-desc" style="font-size:10px;margin-top:3px">Bridge pain to your solution naturally.</div>
+        </div>
+        <div class="flow-stage" style="flex-direction:column;text-align:center;padding:12px 8px">
+          <div class="stage-num" style="margin:0 auto 6px">5</div>
+          <div class="stage-title" style="font-size:11px">Objections</div>
+          <div class="stage-desc" style="font-size:10px;margin-top:3px">Handle resistance with frameworks.</div>
+        </div>
+        <div class="flow-stage" style="flex-direction:column;text-align:center;padding:12px 8px">
+          <div class="stage-num" style="margin:0 auto 6px">6</div>
+          <div class="stage-title" style="font-size:11px">Call to Action</div>
+          <div class="stage-desc" style="font-size:10px;margin-top:3px">Pretend close. Commitment question.</div>
+        </div>
+        <div class="flow-stage" style="flex-direction:column;text-align:center;padding:12px 8px">
+          <div class="stage-num" style="margin:0 auto 6px">7</div>
+          <div class="stage-title" style="font-size:11px">Follow-up</div>
+          <div class="stage-desc" style="font-size:10px;margin-top:3px">Re-engage. Offer alternative value.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PRODUCT KNOWLEDGE ═══ -->
+  <div class="panel" id="panel-products">
+    <div class="card">
+      <div class="card-title">Product / Service Library</div>
+      <div class="products-grid" id="product-grid">
+        <div class="product-card selected" onclick="selectProduct(this,'mini-importation')">
+          <div class="product-name">Mini-importation</div>
+          <div class="product-cat">Masterclass / Course</div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this,'ai-tools')">
+          <div class="product-name">AI Tools & Services</div>
+          <div class="product-cat">Digital Services</div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this,'customer-ebook')">
+          <div class="product-name">Customer Attraction Ebook</div>
+          <div class="product-cat">Ebook / Digital Product</div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this,'prompt-engineering')">
+          <div class="product-name">Prompt Engineering</div>
+          <div class="product-cat">Service / Training</div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this,'graphics-video')">
+          <div class="product-name">Graphics & Video Gen</div>
+          <div class="product-cat">Creative Services</div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this,'sourcing')">
+          <div class="product-name">Product Sourcing</div>
+          <div class="product-cat">Business Service</div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this,'networking')">
+          <div class="product-name">B2B Networking</div>
+          <div class="product-cat">Business Connections</div>
+        </div>
+        <div class="product-card" style="border-style:dashed;cursor:pointer" onclick="showAddProduct()">
+          <div class="product-name" style="color:var(--text3)">+ Add Product</div>
+          <div class="product-cat">Click to add new</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Generate Product Script</div>
+        <div style="margin-bottom:10px">
+          <label>Selected product</label>
+          <input id="prod-name-display" type="text" value="Mini-importation Masterclass" readonly style="background:var(--bg4)">
+        </div>
+        <div style="margin-bottom:10px">
+          <label>Script type needed</label>
+          <select id="prod-script-type">
+            <option value="pitch">Full sales pitch</option>
+            <option value="features">Features & benefits</option>
+            <option value="objections">Common objections + counters</option>
+            <option value="upsell">Upsell / cross-sell script</option>
+            <option value="value-stack">Value stacking close</option>
+            <option value="whatsapp-ad">WhatsApp status ad copy</option>
+          </select>
+        </div>
+        <button class="btn btn-gold" onclick="generateProductScript()" style="width:100%;justify-content:center">Generate Script →</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Product Script</div>
+        <div class="response-box" id="prod-output" style="min-height:160px">Select a product and script type, then click Generate.</div>
+        <div class="copy-bar">
+          <button class="btn btn-ghost btn-sm" onclick="copyEl('prod-output')">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="add-product-form" style="display:none">
+      <div class="card-title">Add New Product / Service to Knowledge Base</div>
+      <div class="grid2" style="gap:10px;margin-bottom:10px">
+        <div><label>Product name</label><input id="new-prod-name" type="text" placeholder="E.g. WhatsApp Marketing Course"></div>
+        <div><label>Category</label><input id="new-prod-cat" type="text" placeholder="E.g. Course, Service, Digital Product"></div>
+      </div>
+      <div style="margin-bottom:10px"><label>Features & benefits</label><textarea id="new-prod-features" placeholder="List the key features and benefits..." rows="3"></textarea></div>
+      <div style="margin-bottom:10px"><label>Common objections prospects raise</label><textarea id="new-prod-objections" placeholder="E.g. 'Is it worth it?' 'What if it doesn't work?'" rows="2"></textarea></div>
+      <div style="margin-bottom:10px"><label>Price point(s)</label><input id="new-prod-price" type="text" placeholder="E.g. ₦5,000 (early bird) / ₦10,000 (regular)"></div>
+      <div style="margin-bottom:10px"><label>Upsell / cross-sell opportunities</label><input id="new-prod-upsell" type="text" placeholder="E.g. After buying the ebook, offer the masterclass"></div>
+      <div class="row">
+        <button class="btn btn-gold" onclick="saveProduct()">Save to Knowledge Base</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('add-product-form').style.display='none'">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ KNOWLEDGE BASE ═══ -->
+  <div class="panel" id="panel-kb">
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="card-title">Active Knowledge Base Documents</div>
+          <div class="kb-doc">
+            <div class="kb-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div class="kb-doc-info">
+              <div class="kb-doc-name">Customer Nurturing & Attraction + Group Presentation Formats</div>
+              <div class="kb-doc-tags"><span class="kb-tag">Lead nurturing</span><span class="kb-tag">Seminar scripts</span><span class="kb-tag">Objection handling</span><span class="kb-tag">Closings</span><span class="kb-tag">Broadcast messages</span></div>
+            </div>
+            <span class="tag tag-green" style="white-space:nowrap">Active</span>
+          </div>
+          <div class="kb-doc mt8">
+            <div class="kb-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div class="kb-doc-info">
+              <div class="kb-doc-name">Business Sectors in Nigeria</div>
+              <div class="kb-doc-tags"><span class="kb-tag">13 sectors</span><span class="kb-tag">Occupations</span><span class="kb-tag">Opportunity mapping</span></div>
+            </div>
+            <span class="tag tag-green" style="white-space:nowrap">Active</span>
+          </div>
+
+          <hr class="divider">
+          <div class="card-title" style="margin-bottom:8px">Upload next documents</div>
+          <div class="kb-slot" onclick="alert('Upload your document in the main Claude chat above, and it will be integrated into this system.')">📎 Objection scripts & buyer resistance doc</div>
+          <div class="kb-slot">📎 Pricing sheet & product catalog</div>
+          <div class="kb-slot">📎 Product FAQs</div>
+          <div class="kb-slot">📎 WhatsApp message templates</div>
+          <div class="kb-slot">📎 Testimonials & social proof</div>
+          <div class="kb-slot">📎 Shipping & sourcing process</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">Add Knowledge Manually</div>
+          <p class="text-muted" style="margin-bottom:12px">Add new scripts, counters, methods, or data directly — no upload needed. This is how you keep the system updated over time.</p>
+          <div style="margin-bottom:10px">
+            <label>Knowledge Category</label>
+            <select id="kb-cat">
+              <option value="objection">Objection counter / buyer resistance</option>
+              <option value="nurture">Lead nurturing script</option>
+              <option value="closing">Closing technique</option>
+              <option value="seminar">Seminar / group message</option>
+              <option value="product">Product information</option>
+              <option value="pricing">Pricing & offer structure</option>
+              <option value="testimonial">Testimonial / social proof</option>
+              <option value="sector">Nigeria sector insight</option>
+              <option value="method">New sales method / strategy</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div style="margin-bottom:10px">
+            <label>Title / Label</label>
+            <input id="kb-title" type="text" placeholder="E.g. 'New method: Scarcity close with countdown'">
+          </div>
+          <div style="margin-bottom:10px">
+            <label>Content</label>
+            <textarea id="kb-content" placeholder="Paste the script, method, or data here. The more detailed, the better the AI responses will be." rows="6"></textarea>
+          </div>
+          <div style="margin-bottom:10px">
+            <label>Tags (comma separated)</label>
+            <input id="kb-tags" type="text" placeholder="E.g. objection, price, scarcity, closing">
+          </div>
+          <button class="btn btn-gold" onclick="saveKBEntry()" style="width:100%;justify-content:center">Save to Knowledge Base</button>
+        </div>
+
+        <div class="card mt12">
+          <div class="card-title">Custom Knowledge Entries</div>
+          <div id="kb-custom-entries">
+            <p class="text-muted">No custom entries yet. Add your first one above — new methods, scripts, pricing updates, or anything that should shape the AI's responses.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TEAM ASSISTANT ═══ -->
+  <div class="panel" id="panel-team">
+    <div class="card">
+      <div class="card-title">Team Member Training Guide</div>
+      <p class="text-muted" style="margin-bottom:16px">Step-by-step instructions for team members with no customer service experience. Follow each stage precisely.</p>
+
+      <div class="onboard-step">
+        <div class="onboard-step-head" onclick="toggleOnboard(this)">
+          <div class="onboard-num">1</div>
+          <div class="onboard-title">How to use the Response Generator (daily use)</div>
+          <div class="spacer"></div>
+          <span style="color:var(--text3);font-size:18px">+</span>
+        </div>
+        <div class="onboard-body">
+          <strong style="color:var(--gold)">Step 1:</strong> Copy the exact message your customer sent you on WhatsApp.<br><br>
+          <strong style="color:var(--gold)">Step 2:</strong> Open the Response Generator tab. Paste the message in the box.<br><br>
+          <strong style="color:var(--gold)">Step 3:</strong> Choose the response category. Ask yourself: "What is happening in this conversation?" — Is this a new contact? A price objection? A follow-up? Select accordingly.<br><br>
+          <strong style="color:var(--gold)">Step 4:</strong> Add context if you have it — e.g. "Day 3 of conversation" or "They saw the seminar but didn't join."<br><br>
+          <strong style="color:var(--gold)">Step 5:</strong> Click Generate. Read the response. If it feels right, copy and send it. If not, click Regenerate for a different version.<br><br>
+          <strong style="color:var(--gold)">Golden rule:</strong> Never send a response without reading it first. You understand the customer — the AI gives you the best words.
+        </div>
+      </div>
+
+      <div class="onboard-step">
+        <div class="onboard-step-head" onclick="toggleOnboard(this)">
+          <div class="onboard-num">2</div>
+          <div class="onboard-title">How to nurture a brand new WhatsApp contact</div>
+          <div class="spacer"></div>
+          <span style="color:var(--text3);font-size:18px">+</span>
+        </div>
+        <div class="onboard-body">
+          <strong style="color:var(--gold)">Day 1 — The warmup:</strong> Never mention business or products on Day 1. Compliment something genuine about them — their status post, their business, their personality. Example: "I couldn't help but notice how professionally you carry yourself on here. Really encouraging."<br><br>
+          <strong style="color:var(--gold)">Day 2 — Discovery:</strong> Ask about their work. Use open questions only: "What do you do?" / "How long have you been in that line?" / "Is business going the way you want?"<br><br>
+          <strong style="color:var(--gold)">Day 3 — The bridge:</strong> Once you know their pain, connect it to MonieQuest naturally. Use the Pretend Close: "If I knew a system that could [solve their pain], would you be interested?"<br><br>
+          <strong style="color:var(--gold)">Never:</strong> Pitch on the first message. Send product links before building trust. Use "please" or beg.
+        </div>
+      </div>
+
+      <div class="onboard-step">
+        <div class="onboard-step-head" onclick="toggleOnboard(this)">
+          <div class="onboard-num">3</div>
+          <div class="onboard-title">How to handle "I'll think about it" and other objections</div>
+          <div class="spacer"></div>
+          <span style="color:var(--text3);font-size:18px">+</span>
+        </div>
+        <div class="onboard-body">
+          When a customer gives resistance, go to the <strong style="color:var(--gold)">Objection Engine tab</strong>. Either paste what they said or click the matching objection chip. The AI will give you the exact counter-script.<br><br>
+          <strong style="color:var(--gold)">The 3 rules of objection handling:</strong><br>
+          1. Never argue — always agree first<br>
+          2. Always go to the root cause — "Is it the money?"<br>
+          3. Use the Pretend Close — "If I could solve that, would you move forward today?"<br><br>
+          <strong style="color:var(--gold)">If they still say no:</strong> Use the graceful exit — "No hard feelings, brother/sis. My mission is your success. Let's talk when the time is right."
+        </div>
+      </div>
+
+      <div class="onboard-step">
+        <div class="onboard-step-head" onclick="toggleOnboard(this)">
+          <div class="onboard-num">4</div>
+          <div class="onboard-title">How to transition a customer into a sale</div>
+          <div class="spacer"></div>
+          <span style="color:var(--text3);font-size:18px">+</span>
+        </div>
+        <div class="onboard-body">
+          The MonieQuest transition formula has 4 steps:<br><br>
+          <strong style="color:var(--gold)">1. Pain → Possibility:</strong> "You mentioned you're struggling to get customers. What if I told you there's a system that makes customers come to you without begging?"<br><br>
+          <strong style="color:var(--gold)">2. Commitment question:</strong> "If I am uniquely qualified to fix your pain, would you demonstrate the financial commitment to fix it?"<br><br>
+          <strong style="color:var(--gold)">3. Value stack before price:</strong> Always reveal all the bonuses and value BEFORE mentioning price. Make the price feel like a steal.<br><br>
+          <strong style="color:var(--gold)">4. Urgency + guarantee:</strong> "This price is only valid before [time]. And if you're not satisfied, I'll refund every kobo — no questions asked."
+        </div>
+      </div>
+
+      <div class="onboard-step">
+        <div class="onboard-step-head" onclick="toggleOnboard(this)">
+          <div class="onboard-num">5</div>
+          <div class="onboard-title">WhatsApp group seminar — team member role</div>
+          <div class="spacer"></div>
+          <span style="color:var(--text3);font-size:18px">+</span>
+        </div>
+        <div class="onboard-body">
+          Use the <strong style="color:var(--gold)">WhatsApp Seminar tab</strong> to get the correct message for each stage. Follow the stage order exactly.<br><br>
+          <strong style="color:var(--gold)">Your role in the group:</strong><br>
+          • Enforce the rules — no links, no spam<br>
+          • Pin important messages<br>
+          • Send reminder messages 30 min before seminar starts<br>
+          • DM everyone who didn't pay after the class using the follow-up template<br><br>
+          <strong style="color:var(--gold)">Golden rule for seminars:</strong> The goal of the free class is to get them to pay for the masterclass. Every message should build towards that moment.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ask the Team Assistant</div>
+      <div style="margin-bottom:10px">
+        <label>What situation are you facing?</label>
+        <textarea id="team-question" placeholder="E.g. 'A customer said they're interested but they want to wait till next month — what do I say?' or 'How do I approach someone I've never spoken to?'" rows="3"></textarea>
+      </div>
+      <button class="btn btn-gold" onclick="askTeamAssistant()" style="width:100%;justify-content:center">Get Coaching Advice →</button>
+      <div class="response-box mt12" id="team-output" style="min-height:80px;display:none"></div>
+    </div>
+  </div>
+
+  <!-- ═══ SETUP GUIDE ═══ -->
+  <div class="panel" id="panel-setup">
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="card-title">System Architecture</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:12px">
+            This system is built on 4 layers:
+          </div>
+          <div class="flow-stage"><div class="stage-num">1</div><div class="stage-body"><div class="stage-title">Knowledge Base Layer</div><div class="stage-desc">Your uploaded documents + manually added entries. Everything the AI knows comes from here first.</div></div></div>
+          <div class="stage-arrow">↓</div>
+          <div class="flow-stage"><div class="stage-num">2</div><div class="stage-body"><div class="stage-title">Prompt Architecture Layer</div><div class="stage-desc">Structured system prompts that tell the AI: your business identity, frameworks to follow, tone to use, and what to prioritize.</div></div></div>
+          <div class="stage-arrow">↓</div>
+          <div class="flow-stage"><div class="stage-num">3</div><div class="stage-body"><div class="stage-title">Module Layer</div><div class="stage-desc">8 specialized modules (support, objection, seminar, flow, products, KB, team, response) each with their own AI persona.</div></div></div>
+          <div class="stage-arrow">↓</div>
+          <div class="flow-stage"><div class="stage-num">4</div><div class="stage-body"><div class="stage-title">Output Layer</div><div class="stage-desc">WhatsApp-ready plain-text responses your team copies and sends. No formatting errors, no robotic language.</div></div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">Claude AI Setup Guide</div>
+          <div class="onboard-step" style="padding:10px;margin-bottom:8px">
+            <div class="onboard-step-head" onclick="toggleOnboard(this)">
+              <div class="onboard-num" style="width:22px;height:22px;font-size:10px">A</div>
+              <div class="onboard-title" style="font-size:12px">How to use this file with Claude.ai</div>
+              <div class="spacer"></div><span style="color:var(--text3)">+</span>
+            </div>
+            <div class="onboard-body">
+              1. Go to claude.ai and start a new conversation<br>
+              2. Upload your business documents as attachments<br>
+              3. Begin with: "You are the MonieQuest AI assistant trained on my uploaded documents. Always prioritize information from my uploaded files before using general knowledge."<br>
+              4. Use this web app to structure your requests<br>
+              5. Copy outputs and paste them to customers
+            </div>
+          </div>
+          <div class="onboard-step" style="padding:10px;margin-bottom:8px">
+            <div class="onboard-step-head" onclick="toggleOnboard(this)">
+              <div class="onboard-num" style="width:22px;height:22px;font-size:10px">B</div>
+              <div class="onboard-title" style="font-size:12px">Master system prompt (copy this)</div>
+              <div class="spacer"></div><span style="color:var(--text3)">+</span>
+            </div>
+            <div class="onboard-body">
+              <div class="code-block">You are the MonieQuest AI Business Assistant, created for Mahmud Basit (Investor MB), CEO of MonieQuest Nigeria.
+
+PRIORITY RULE: Always read and base your responses on the uploaded documents first. Never give generic responses when the documents contain relevant information.
+
+BUSINESS IDENTITY:
+- MonieQuest is Nigeria's premier multi-service business hub
+- Services: dropshipping, China sourcing, AI tools, prompt engineering, graphics/video, B2B networking, educational seminars
+- Tone: warm, brotherly, persuasive, WhatsApp-friendly
+- Use ₦ for Naira. Address as "brother/sis/pal" naturally.
+
+FRAMEWORKS TO USE (from uploaded docs):
+- 3-stage nurture: Warmup → Discovery → Bridge
+- Pretend Close: "Let's pretend I could..."
+- Commitment Question: "If I am uniquely qualified..."
+- Graceful exit when losing interest
+- Value stack before price reveal
+
+Keep responses under 150 words unless asked for a full script. Plain text only — no markdown.</div>
+              <button class="btn btn-ghost btn-sm mt8" onclick="copyCode(this)">📋 Copy prompt</button>
+            </div>
+          </div>
+          <div class="onboard-step" style="padding:10px;margin-bottom:8px">
+            <div class="onboard-step-head" onclick="toggleOnboard(this)">
+              <div class="onboard-num" style="width:22px;height:22px;font-size:10px">C</div>
+              <div class="onboard-title" style="font-size:12px">Alternative platforms</div>
+              <div class="spacer"></div><span style="color:var(--text3)">+</span>
+            </div>
+            <div class="onboard-body">
+              <strong style="color:var(--gold)">WhatsApp integration:</strong> Twilio WhatsApp Business API + Node.js webhook<br><br>
+              <strong style="color:var(--gold)">No-code automation:</strong> Make.com (formerly Integromat) — connect WhatsApp, Google Sheets, and Claude AI without coding<br><br>
+              <strong style="color:var(--gold)">CRM:</strong> Notion or Airtable — track leads, conversation status, and follow-up dates<br><br>
+              <strong style="color:var(--gold)">Hosting this app:</strong> Vercel.com — upload this HTML file and get a live URL in 2 minutes (free)<br><br>
+              <strong style="color:var(--gold)">Team access:</strong> Share the Vercel URL with your team via WhatsApp. Anyone with the link can use the full system.
+            </div>
+          </div>
+          <div class="onboard-step" style="padding:10px">
+            <div class="onboard-step-head" onclick="toggleOnboard(this)">
+              <div class="onboard-num" style="width:22px;height:22px;font-size:10px">D</div>
+              <div class="onboard-title" style="font-size:12px">Workflow design — daily operations</div>
+              <div class="spacer"></div><span style="color:var(--text3)">+</span>
+            </div>
+            <div class="onboard-body">
+              <strong style="color:var(--gold)">Morning (9–10am):</strong> Review new WhatsApp messages. Paste each into Response Generator. Send replies.<br><br>
+              <strong style="color:var(--gold)">Seminar days:</strong> Use WhatsApp Seminar tab. Follow stage sequence. DM non-payers after class.<br><br>
+              <strong style="color:var(--gold)">New contacts:</strong> Use Lead Nurture mode in Chat. Follow 3-day warmup protocol.<br><br>
+              <strong style="color:var(--gold)">Objections:</strong> Go straight to Objection Engine. Never improvise on pricing objections.<br><br>
+              <strong style="color:var(--gold)">Weekly KB update:</strong> Add any new scripts, methods, or testimonials to the Knowledge Base manually. This keeps the AI improving every week.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ═══════════════════════════════════════
+// KNOWLEDGE BASE — embedded from uploaded docs
+// ═══════════════════════════════════════
+const KB_NURTURING = `
+MONIEQUEST CUSTOMER NURTURING & ATTRACTION FRAMEWORK (from uploaded document):
+
+WARMUP SCRIPTS (for WhatsApp contacts who post their own business):
+- "I couldn't help but notice your positive energy / the professional way you run things / you have a great personality / how you go above and beyond for your audience."
+- "My physical friends and I were just commenting on the excellent service you give in this digital space."
+- "I find you encouraging and your last post on Acquiring Customers has been a stepping stone for me."
+
+DISCOVERY QUESTIONS (Day 2):
+- "Can I have the full details of work you do?" / "What do you do and how is it going for you?"
+- "How long have you been in that line of work and do you enjoy it?"
+- "Have you given up trying to deal with the problem?" / "How much do you think that has cost you?"
+- "What have you tried to do about that and did that work?" / "Have you ever tried a digital solution?"
+- "Exactly what kind of results are you looking for?"
+
+PAIN AMPLIFICATION SCRIPTS:
+- "Have you been trying to make at least ₦200,000 monthly but been unsuccessful?"
+- "Have you been trying to sell your products without feeling like a scam?"
+- "Imagine never having to worry about begging or clamoring for customers again."
+- "If you knew a system that would make people feel stupid for not purchasing from you — would you be interested?"
+
+COMMITMENT CLOSES:
+- "If I am uniquely qualified to fix your pain, would you demonstrate the financial commitment to fix it?"
+- "Let's pretend I send you a solution that keeps pumping money into your bank account consistently — will you be ready to do business with me today?"
+- "I want some kind of financial commitment. Do we have a deal?"
+- "If I gave you a [website/PDF/VIP seminar] would you look at it? Will you check it out now? When do you think you can check it out for sure?"
+
+OBJECTION COUNTERS:
+LET ME THINK ABOUT IT: "When people say that to me, what they mean is NO. You just don't want to hurt my feelings. Isn't this the case here? Is it the money?"
+I WILL GET BACK TO YOU: "Usually when I hear that, I never hear from the person again. Let's bottom-line this. What would it take for you and me to do business today?"
+I HAVE TO TALK TO MY PARTNER: "When you get off the phone and talk to [partner], what is he/she going to say? Would it help for the three of us to have a conversation?"
+I NEED TO RESEARCH: "Let's pretend you do your research and you like what you see. What is going to happen next?"
+DO YOU HAVE A GUARANTEE: "Exactly what kind of guarantee are you looking for? In 30 days if you're not happy I get your money back. Are you going to do business with me today?"
+SEND MORE INFORMATION: "I'll be happy to send it. But let me ask — if I send you everything you want and you love it, are you ready to do business today?"
+HOW MUCH IS IT: "It is ₦[price]. Are you comfortable spending that? Is it within your budget?"
+SEND PROPOSAL/TESTIMONY: "Let's pretend I send you a proposal and you like what you see. Are you and I going to do business today?"
+
+FOR PEOPLE WHO CAN'T AFFORD:
+- "Let's pretend I could give you this for free if only you do a small task for me. Would it make a difference?"
+- Tasks: testimonial/social proof, posting business on their status, sharing 10 influencer contacts, referrals.
+
+WHEN LOSING INTEREST:
+- "A person doesn't know what he can do unless he tries. Have a good day brother/sister."
+- "Nothing good comes easy. You can't expect millions from what you know when you're still working with a thousand mentality. No hard feelings Pal."
+
+GROUP SEMINAR SCRIPTS:
+PRE-SEMINAR: "You are welcome, class starts Wednesday. If you attend ONE free class this year, this should be it. This breakthrough class will show you how to master [topic] and use your knowledge to promote your business."
+DAY-OF RULES: "No links or spamming. Go away from loudy environments. No questions until after the seminar. Open your mind. Take it serious."
+OPENING: "Congratulations to all who made it here. I am about to give you an opportunity that changed me from zero account balance to earning 6 figures weekly."
+MASTERCLASS PITCH: Stack value to ₦380,000 → reduce to ₦50,000 → "not even ₦100,000" → "not even ₦50,000" → final price ₦5,000-7,000. Time urgency: "pay before 12pm tomorrow."
+MONEY BACK GUARANTEE: "I carry all the risk. If after training you feel I wasted your time or you didn't get 1000x value — ask for a refund. I'll refund you and even apologize."
+POST-SEMINAR FOLLOWUP: "Hello Sir/Ma. I noticed you were in my presentation group for a few days. Kindly reply if you still have interest in the business opportunity. If I don't get a response in 12 hours I will assume you're not interested."
+
+BROADCAST INVITATION: "I conducted a survey of network marketers. They all told me the major problem is talking to customers and selling their products. Is this your predicament too? Give me 3 minutes of your time and I'll show you how to attract strangers and sell your products without them avoiding you."
+
+PERSONAL APPROACH: "Good morning great mind. My name is Basit Mahmud, The Founder of MonieQuest. I am a source of inspiration to young people who want to build, impact, influence and make income. I've mentored thousands to monetize their skills."
+
+VALUE STACK EBOOK SCRIPT: "This ebook is valued at over ₦20,000. Won't it be worth it if you spend ₦20,000 and could make ₦500,000 with it? I'll be letting you steal it for ₦2,000 if you pay right now."
+
+NEWBIE INVITE SEQUENCE: Ask about work → "Do you keep an open mind to other career opportunities?" → Share PDF/video → Follow up on agreed date → "You like what you see? Any questions? So are you ready to do business today?"
+`;
+
+const KB_SECTORS = `
+NIGERIA BUSINESS SECTORS (from uploaded document):
+Primary: Agriculture (crop farming, livestock, agro-processing, forestry), Mining & Solid Minerals (oil & gas, metals, quarrying)
+Secondary: Manufacturing (cement, food processing, cosmetics, textiles, automobiles), Energy & Power (electricity, solar, batteries)
+Tertiary: Transportation & Logistics (Uber/Bolt, aviation, maritime, railways), Financial Services (banking, insurance, fintech/Opay/Flutterwave, POS), Construction & Real Estate (civil engineering, property, interior design), ICT (telecom/MTN/Glo/Airtel, software, cybersecurity, e-commerce/Jumia/dropshipping), Entertainment & Media (Nollywood, music, events, content creators), Healthcare (hospitals, pharma, herbal, medical equipment), Education (schools, vocational, online learning/EdTech), Hospitality & Tourism (hotels, restaurants, travel agencies), Retail & Small Business (supermarkets, boutiques, electronics, beauty salons), Sports & Recreation (football, gyms, betting/Bet9ja).
+
+Key for MonieQuest: ICT sector people (dropshippers, affiliate marketers, digital marketers) are primary targets. Retail & small business owners need product sourcing. Financial sector contacts need B2B networking. Education sector needs AI tools. Entertainment needs graphics/video services.
+`;
+
+// Custom KB entries (user-added)
+let customKBEntries = [];
+let customProducts = [];
+let chatMode = 'general';
+let chatHistory = [];
+let selectedProduct = 'mini-importation';
+let selectedSeminarStage = 'pre1';
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+const PAGE_META = {
+  dashboard: ['Dashboard', 'Welcome to MonieQuest AI Business Operating System'],
+  chat: ['Customer Support AI', 'Powered by your MonieQuest frameworks — handles any customer situation'],
+  response: ['Response Generator', 'Paste a customer message and get an optimized reply instantly'],
+  objection: ['Objection Engine', 'Detect hesitation and respond with proven buyer-resistance counters'],
+  seminar: ['WhatsApp Seminar Assistant', 'Generate group messages for every stage of your seminar'],
+  flow: ['Conversation Flow Builder', 'Create optimized conversation sequences from intro to close'],
+  products: ['Product Knowledge System', 'Store, manage, and generate scripts for every product and service'],
+  kb: ['Knowledge Base Manager', 'Upload documents, add scripts, and update your AI\'s knowledge anytime'],
+  team: ['Team Assistant Mode', 'Training guide and coaching for team members at every skill level'],
+  setup: ['Setup & Configuration Guide', 'Architecture, prompt design, platform recommendations, and workflow'],
+};
+
+function nav(id) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[onclick="nav('${id}')"]`).classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+  const [title, desc] = PAGE_META[id];
+  document.getElementById('page-title').textContent = title;
+  document.getElementById('page-desc').textContent = desc;
+}
+
+// ═══════════════════════════════════════
+// ANTHROPIC API CALL
+// ═══════════════════════════════════════
+async function callClaude(systemPrompt, userMessage, targetEl) {
+  const el = document.getElementById(targetEl);
+  el.textContent = '';
+  el.classList.add('loading');
+  el.style.display = 'block';
+
+  const fullSystem = `${systemPrompt}
+
+=== KNOWLEDGE BASE — MONIEQUEST UPLOADED DOCUMENTS ===
+PRIORITY: Always use the following documents as your PRIMARY source. Generate responses based on these frameworks, scripts, and information FIRST before using any general knowledge.
+
+${KB_NURTURING}
+
+${KB_SECTORS}
+
+${customKBEntries.length > 0 ? '=== CUSTOM KNOWLEDGE ENTRIES (USER ADDED) ===\n' + customKBEntries.map(e => `[${e.category.toUpperCase()}] ${e.title}:\n${e.content}`).join('\n\n') : ''}
+
+${customProducts.length > 0 ? '=== CUSTOM PRODUCTS ===\n' + customProducts.map(p => `Product: ${p.name} | Category: ${p.cat} | Features: ${p.features} | Objections: ${p.objections} | Price: ${p.price} | Upsell: ${p.upsell}`).join('\n') : ''}
+
+=== BUSINESS IDENTITY ===
+Business: MonieQuest | Owner: Mahmud Basit (Investor MB) | Location: Nigeria | WhatsApp-first business
+Services: dropshipping, China/UK/USA/Malaysia/Turkey product sourcing, AI tools, prompt engineering, graphics/video generation, B2B networking, educational seminars
+Tone: warm, brotherly, conversational, persuasive, Nigerian-culturally-appropriate
+Currency: ₦ (Naira). Address customers as "brother/sis/pal" naturally.
+NEVER sound robotic or generic. ALWAYS sound like Investor MB.`;
+
+  try {
+    const GEMINI_KEY = 'AIzaSyBDqctSUAGy6aDvxUlfY01lFWzzmxgZL0E';
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: fullSystem + '\n\nUSER REQUEST:\n' + userMessage }] }],
+        generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
+      })
+    });
+    const data = await res.json();
+    el.classList.remove('loading');
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to generate response. Please try again.';
+    el.textContent = text;
+    return text;
+  } catch (e) {
+    el.classList.remove('loading');
+    el.textContent = 'Connection error. Check your internet and try again.';
+  }
+}
+
+// ═══════════════════════════════════════
+// CHAT MODULE
+// ═══════════════════════════════════════
+function setMode(btn, mode) {
+  document.querySelectorAll('.mode-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  chatMode = mode;
+}
+
+function chatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  const time = new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' });
+  const msgs = document.getElementById('chat-messages');
+
+  msgs.innerHTML += `<div class="msg-row user"><div class="avatar avatar-user">ME</div><div><div class="bubble bubble-user">${msg}</div><div class="bubble-time">${time}</div></div></div>`;
+
+  const thinkRow = document.createElement('div');
+  thinkRow.className = 'msg-row';
+  thinkRow.id = 'think-row';
+  thinkRow.innerHTML = `<div class="avatar avatar-ai">MQ</div><div><div class="bubble bubble-ai thinking">Generating response from your frameworks...</div></div>`;
+  msgs.appendChild(thinkRow);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  chatHistory.push({ role: 'user', content: msg });
+
+  const modeInstructions = {
+    general: 'You are handling general customer support. Be warm, helpful, and solution-focused.',
+    nurture: 'You are nurturing a lead. Follow the 3-stage warmup/discovery/bridge framework from the uploaded documents. Do NOT pitch on first contact.',
+    sourcing: 'You are handling a product sourcing inquiry. Help the customer understand MonieQuest\'s China/UK/USA/Malaysia/Turkey sourcing process.',
+    networking: 'You are facilitating B2B networking. Help connect businesses using Nigeria\'s 13 sectors from the uploaded document.',
+    digital: 'You are advising on AI tools and digital services. Use simple Nigerian business language to explain value.',
+    followup: 'You are following up with a lead who went quiet. Use the re-engagement scripts from the uploaded documents.',
+  };
+
+  const system = `You are the MonieQuest AI Customer Support assistant. Current mode: ${chatMode}. ${modeInstructions[chatMode] || ''}
+Respond in plain text only. WhatsApp-friendly. Under 120 words unless the user needs a longer script. Sound human, warm, like Investor MB.`;
+
+  const historyForAPI = chatHistory.slice(-6);
+
+  try {
+    const fullKB = `${system}\n\nKNOWLEDGE BASE:\n${KB_NURTURING}\n${KB_SECTORS}${customKBEntries.length ? '\n' + customKBEntries.map(e => `[${e.category}] ${e.title}: ${e.content}`).join('\n') : ''}`;
+    const GEMINI_KEY = 'AIzaSyBDqctSUAGy6aDvxUlfY01lFWzzmxgZL0E';
+    const convText = fullKB + '\n\nCONVERSATION:\n' + historyForAPI.map(m => (m.role === 'user' ? 'Customer: ' : 'MonieQuest AI: ') + m.content).join('\n') + '\n\nNow respond as MonieQuest AI:';
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: convText }] }],
+        generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
+      })
+    });
+    const data = await res.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I couldn\'t generate a response.';
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    document.getElementById('think-row')?.remove();
+    const t2 = new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' });
+    msgs.innerHTML += `<div class="msg-row"><div class="avatar avatar-ai">MQ</div><div><div class="bubble bubble-ai">${reply}</div><div class="bubble-time">${t2}</div></div></div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  } catch {
+    document.getElementById('think-row')?.remove();
+    msgs.innerHTML += `<div class="msg-row"><div class="avatar avatar-ai">MQ</div><div><div class="bubble bubble-ai">Connection error. Please try again.</div></div></div>`;
+  }
+}
+
+// ═══════════════════════════════════════
+// RESPONSE GENERATOR
+// ═══════════════════════════════════════
+async function generateResponse() {
+  const msg = document.getElementById('resp-customer-msg').value.trim();
+  const cat = document.getElementById('resp-category').value;
+  const tone = document.getElementById('resp-tone').value;
+  const ctx = document.getElementById('resp-context').value.trim();
+  if (!msg) { alert('Please paste the customer\'s message first.'); return; }
+
+  const prompt = `Generate a WhatsApp response for MonieQuest based on the following:
+
+CUSTOMER MESSAGE: "${msg}"
+RESPONSE CATEGORY: ${cat}
+TONE: ${tone}
+ADDITIONAL CONTEXT: ${ctx || 'none'}
+
+INSTRUCTIONS:
+- Use the scripts and frameworks from the uploaded MonieQuest documents
+- Match the tone specified
+- Plain text only — no asterisks, no bullet points, no markdown
+- Under 150 words unless a full script is needed for the category
+- Sound like Investor MB — warm, brotherly, Nigerian, persuasive but not pushy
+- End with a question or clear next step to keep the conversation moving`;
+
+  await callClaude('You are the MonieQuest Response Generator. Generate optimized WhatsApp responses based STRICTLY on the uploaded business frameworks.', prompt, 'resp-output');
+}
+
+function regenerateResponse() { generateResponse(); }
+function clearResponse() {
+  document.getElementById('resp-customer-msg').value = '';
+  document.getElementById('resp-context').value = '';
+  document.getElementById('resp-output').textContent = 'Your optimized response will appear here.';
+}
+function copyResponse() { copyEl('resp-output'); }
+
+// ═══════════════════════════════════════
+// OBJECTION ENGINE
+// ═══════════════════════════════════════
+function selectObj(btn, text) {
+  document.querySelectorAll('.objection-chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('obj-input').value = text;
+}
+
+async function handleObjection() {
+  const input = document.getElementById('obj-input').value.trim();
+  const product = document.getElementById('obj-product').value.trim() || 'our product/service';
+  if (!input) { alert('Please enter what the customer said or select an objection type.'); return; }
+
+  const prompt = `A customer said: "${input}"
+What we're selling: ${product}
+
+Generate a WhatsApp response that:
+1. Acknowledges their concern without arguing
+2. Uses the exact objection-handling scripts from the uploaded MonieQuest documents
+3. Digs for the root cause (money? trust? timing?)
+4. Applies the Pretend Close or Commitment Question
+5. Ends with a clear next step
+
+Plain text. Under 120 words. Sound like Investor MB — warm, direct, not pushy.`;
+
+  await callClaude('You are the MonieQuest Objection Engine. Use ONLY the objection handling scripts from the uploaded documents.', prompt, 'obj-output');
+}
+
+// ═══════════════════════════════════════
+// SEMINAR ASSISTANT
+// ═══════════════════════════════════════
+function seminarStage(btn, stage) {
+  document.querySelectorAll('.seminar-stage-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedSeminarStage = stage;
+}
+
+async function generateSeminar() {
+  const topic = document.getElementById('sem-topic').value || 'Mini-importation';
+  const price = document.getElementById('sem-price').value || '₦5,000';
+  const custom = document.getElementById('sem-custom').value;
+
+  const stageInstructions = {
+    pre1: 'Write the Day 1 pre-seminar WhatsApp group message. Build excitement, introduce the topic, tell them what they will learn. Use the GROUP SEMINAR PRE scripts from the uploaded document. Include an invitation to share the group link for a gift worth ₦30,000.',
+    pre2: 'Write a Day 2 pre-seminar message. Build more anticipation. Include a teaser tip or insight about the topic. Remind them to invite friends. Remind unsaved contacts to save your number.',
+    pre3: 'Write the IMPORTANT NOTICE for unsaved contacts. Use the exact script from the uploaded document. Tell them they may get removed before the class starts if they haven\'t saved the contact.',
+    open: 'Write the seminar day opening message. Include basic rules (no links, no spam, no questions until after seminar, open your mind). Build excitement that the class is about to start.',
+    intro: 'Write Investor MB\'s self-introduction for the seminar. Include his credentials, what he has achieved, his mission, and social proof. Use the personal approach scripts from the uploaded document.',
+    free: 'Write the free class content delivery message. Introduce what they will learn in the free session. Position it as a teaser for the masterclass. Build desire.',
+    pitch: `Write the masterclass pitch. Stack value to ₦380,000 → reduce dramatically → final price ${price}. Add urgency and money-back guarantee. Use the exact price anchoring scripts from the uploaded document.`,
+    followup: 'Write the post-seminar DM follow-up for people who attended the free class but did NOT pay for the masterclass. Use the script from the uploaded document. Give them 12 hours to respond.',
+    custom: `Write a custom WhatsApp seminar message. Topic: ${topic}. Price: ${price}. Additional instruction: ${custom || 'none'}.`,
+  };
+
+  const prompt = `Generate a WhatsApp seminar message for MonieQuest.
+
+Topic/Product: ${topic}
+Masterclass Price: ${price}
+Stage: ${selectedSeminarStage}
+Instruction: ${stageInstructions[selectedSeminarStage]}
+${custom ? 'Custom instruction: ' + custom : ''}
+
+Use the GROUP SEMINAR scripts from the uploaded documents. Plain text only. WhatsApp-friendly formatting (short paragraphs, line breaks). Sound energetic, warm, and like Investor MB.`;
+
+  await callClaude('You are the MonieQuest WhatsApp Seminar Assistant. Generate seminar messages based STRICTLY on the uploaded group presentation frameworks.', prompt, 'sem-output');
+}
+
+// ═══════════════════════════════════════
+// CONVERSATION FLOW BUILDER
+// ═══════════════════════════════════════
+async function generateFlow() {
+  const prospect = document.getElementById('flow-prospect').value;
+  const goal = document.getElementById('flow-goal').value;
+  const duration = document.getElementById('flow-duration').value;
+
+  const prompt = `Create a complete conversation flow for MonieQuest using the 7-stage framework.
+
+Prospect type: ${prospect}
+End goal: ${goal}
+Duration: ${duration}
+
+Structure the flow as:
+STAGE 1 — INTRODUCTION: [exact message to send]
+STAGE 2 — ENGAGEMENT: [what to ask / how to respond]
+STAGE 3 — RELATIONSHIP BUILDING: [how to uncover pain]
+STAGE 4 — PRODUCT/SERVICE INTRODUCTION: [how to bridge pain to solution]
+STAGE 5 — OBJECTION HANDLING: [likely objections and counters]
+STAGE 6 — CALL TO ACTION: [closing message]
+STAGE 7 — FOLLOW-UP: [if no response, follow-up sequence]
+
+Use exact scripts from the uploaded MonieQuest documents wherever applicable. Label each day if it's a multi-day sequence. Plain text.`;
+
+  await callClaude('You are the MonieQuest Conversation Flow Builder. Create detailed conversation sequences using the uploaded frameworks.', prompt, 'flow-output');
+}
+
+// ═══════════════════════════════════════
+// PRODUCT KNOWLEDGE
+// ═══════════════════════════════════════
+function selectProduct(card, productId) {
+  document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedProduct = productId;
+  document.getElementById('prod-name-display').value = card.querySelector('.product-name').textContent;
+}
+
+async function generateProductScript() {
+  const product = document.getElementById('prod-name-display').value;
+  const type = document.getElementById('prod-script-type').value;
+
+  const prompt = `Generate a ${type} script for MonieQuest product/service: ${product}
+
+Use the persuasion frameworks, value stacking, and pricing scripts from the uploaded MonieQuest documents.
+If this is a pitch or value stack, anchor high (10x the actual price) then reduce dramatically to the real price.
+Plain text. WhatsApp-friendly. Sound like Investor MB.`;
+
+  await callClaude('You are the MonieQuest Product Knowledge specialist. Generate scripts based on uploaded business frameworks.', prompt, 'prod-output');
+}
+
+function showAddProduct() {
+  document.getElementById('add-product-form').style.display = 'block';
+}
+
+function saveProduct() {
+  const name = document.getElementById('new-prod-name').value.trim();
+  if (!name) { alert('Please enter a product name.'); return; }
+  const prod = {
+    id: name.toLowerCase().replace(/\s+/g, '-'),
+    name,
+    cat: document.getElementById('new-prod-cat').value,
+    features: document.getElementById('new-prod-features').value,
+    objections: document.getElementById('new-prod-objections').value,
+    price: document.getElementById('new-prod-price').value,
+    upsell: document.getElementById('new-prod-upsell').value,
+  };
+  customProducts.push(prod);
+
+  const grid = document.getElementById('product-grid');
+  const addBtn = grid.lastElementChild;
+  const card = document.createElement('div');
+  card.className = 'product-card';
+  card.onclick = function() { selectProduct(this, prod.id); };
+  card.innerHTML = `<div class="product-name">${prod.name}</div><div class="product-cat">${prod.cat}</div>`;
+  grid.insertBefore(card, addBtn);
+
+  document.getElementById('add-product-form').style.display = 'none';
+  ['new-prod-name','new-prod-cat','new-prod-features','new-prod-objections','new-prod-price','new-prod-upsell'].forEach(id => document.getElementById(id).value = '');
+  alert(`"${name}" saved to Knowledge Base! The AI will now use it when generating scripts.`);
+}
+
+// ═══════════════════════════════════════
+// KNOWLEDGE BASE MANAGER
+// ═══════════════════════════════════════
+function saveKBEntry() {
+  const title = document.getElementById('kb-title').value.trim();
+  const content = document.getElementById('kb-content').value.trim();
+  const category = document.getElementById('kb-cat').value;
+  const tags = document.getElementById('kb-tags').value.trim();
+  if (!title || !content) { alert('Please fill in both the title and content.'); return; }
+
+  const entry = { title, content, category, tags, date: new Date().toLocaleDateString('en-NG') };
+  customKBEntries.push(entry);
+
+  const container = document.getElementById('kb-custom-entries');
+  if (container.querySelector('p')) container.innerHTML = '';
+
+  const el = document.createElement('div');
+  el.className = 'kb-doc';
+  el.style.marginBottom = '8px';
+  el.innerHTML = `
+    <div class="kb-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+    <div class="kb-doc-info">
+      <div class="kb-doc-name">${title}</div>
+      <div class="kb-doc-tags">${tags.split(',').filter(Boolean).map(t => `<span class="kb-tag">${t.trim()}</span>`).join('')}<span class="kb-tag">${entry.date}</span></div>
+    </div>
+    <span class="tag tag-gold">${category}</span>`;
+  container.appendChild(el);
+
+  document.getElementById('kb-title').value = '';
+  document.getElementById('kb-content').value = '';
+  document.getElementById('kb-tags').value = '';
+  alert(`Knowledge entry "${title}" saved! The AI will now use it in all responses.`);
+}
+
+// ═══════════════════════════════════════
+// TEAM ASSISTANT
+// ═══════════════════════════════════════
+async function askTeamAssistant() {
+  const question = document.getElementById('team-question').value.trim();
+  if (!question) { alert('Please describe the situation you are facing.'); return; }
+
+  const prompt = `A MonieQuest team member is asking for coaching guidance:
+
+"${question}"
+
+Provide step-by-step coaching advice based on the MonieQuest frameworks from the uploaded documents. Be specific — give them the EXACT words to say or send. Reference the specific scripts and techniques from the uploaded documents.
+
+Format: [What to understand] → [Exact words/message to send] → [What to do if they don't respond]
+
+Plain text. Practical. Like a senior colleague coaching a junior team member.`;
+
+  document.getElementById('team-output').style.display = 'block';
+  await callClaude('You are a senior MonieQuest team coach. Guide junior staff using the uploaded frameworks and scripts.', prompt, 'team-output');
+}
+
+// ═══════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════
+function toggleOnboard(head) {
+  const body = head.parentElement.querySelector('.onboard-body');
+  const icon = head.querySelector('span:last-child');
+  body.classList.toggle('open');
+  icon.textContent = body.classList.contains('open') ? '−' : '+';
+}
+
+function copyEl(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+function copyCode(btn) {
+  const code = btn.previousElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+</script>
+</body>
+</html>
 
