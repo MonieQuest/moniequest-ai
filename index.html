@@ -1198,15 +1198,15 @@ NEVER sound robotic or generic. ALWAYS sound like Investor MB.`;
 
   try {
     const GEMINI_KEY = 'AIzaSyBDqctSUAGy6aDvxUlfY01lFWzzmxgZL0E';
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+    const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: fullSystem + '\n\nUSER REQUEST:\n' + userMessage }] }],
+        contents: [{ parts: [{ text: fullSystem + '\n\nUSER REQUEST:\n' + userMessage }] }],
         generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
       })
     });
-    const data = await res.json();
+    const data = await geminiRes.json();
     el.classList.remove('loading');
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to generate response. Please try again.';
     el.textContent = text;
@@ -1269,15 +1269,15 @@ Respond in plain text only. WhatsApp-friendly. Under 120 words unless the user n
     const fullKB = `${system}\n\nKNOWLEDGE BASE:\n${KB_NURTURING}\n${KB_SECTORS}${customKBEntries.length ? '\n' + customKBEntries.map(e => `[${e.category}] ${e.title}: ${e.content}`).join('\n') : ''}`;
     const GEMINI_KEY = 'AIzaSyBDqctSUAGy6aDvxUlfY01lFWzzmxgZL0E';
     const convText = fullKB + '\n\nCONVERSATION:\n' + historyForAPI.map(m => (m.role === 'user' ? 'Customer: ' : 'MonieQuest AI: ') + m.content).join('\n') + '\n\nNow respond as MonieQuest AI:';
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+    const geminiRes2 = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: convText }] }],
+        contents: [{ parts: [{ text: convText }] }],
         generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
       })
     });
-    const data = await res.json();
+    const data = await geminiRes2.json();
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I couldn\'t generate a response.';
     chatHistory.push({ role: 'assistant', content: reply });
 
@@ -1563,4 +1563,3 @@ function copyCode(btn) {
 </script>
 </body>
 </html>
-
